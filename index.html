@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Кам'яна Корона</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --dark1:#0d0b07;--dark2:#141009;--dark3:#1c1610;--dark4:#241e14;--dark5:#2e2618;
+  --panel:#1a1510;--panel2:#211c13;--panel3:#2a2418;
+  --gold1:#f0c040;--gold2:#d4a020;--gold3:#a87810;--gold4:#7a5808;
+  --amber:#e08020;--amber2:#c06010;
+  --green:#4a9030;--green2:#38701e;--green3:#80c040;
+  --red:#c03020;--red2:#902010;--red3:#e05040;
+  --blue:#2860b0;--blue2:#4890e0;
+  --border1:rgba(240,192,64,.25);--border2:rgba(240,192,64,.5);--border3:rgba(240,192,64,.8);
+  --text1:#f0e8d0;--text2:#c8b880;--text3:#907858;--text4:#604830;
+  --sh:rgba(0,0,0,.6);
+}
+body{background:var(--dark1);color:var(--text1);font-family:'Crimson Text',serif;overflow:hidden;height:100vh;width:100vw;user-select:none;-webkit-user-select:none;}
+
+/* ═══ TOP BAR ═══ */
+#topbar{
+  position:fixed;top:0;left:0;right:0;height:52px;z-index:200;
+  background:linear-gradient(180deg,#0a0805 0%,#181208 60%,#201808 100%);
+  border-bottom:1px solid var(--border2);
+  box-shadow:0 2px 16px rgba(0,0,0,.8);
+  display:flex;align-items:center;padding:0 10px;gap:4px;
+}
+
+.tb-res{
+  display:flex;align-items:center;gap:5px;
+  background:linear-gradient(180deg,#2a2010,#1a1408);
+  border:1px solid var(--border1);border-radius:4px;
+  padding:4px 10px;cursor:default;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+  min-width:70px;
+}
+.tb-res-ico{font-size:16px;flex-shrink:0;}
+.tb-res-val{font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:var(--gold1);}
+.tb-res-rate{font-size:9px;color:var(--green3);font-family:'Cinzel',serif;}
+
+.tb-sep{width:1px;height:30px;background:var(--border1);margin:0 4px;}
+
+.tb-village-btn{
+  display:flex;align-items:center;gap:6px;
+  background:linear-gradient(180deg,#c89020,#a07010,#805808);
+  border:1px solid var(--gold1);border-radius:5px;
+  padding:6px 16px;cursor:pointer;
+  font-family:'Cinzel',serif;font-size:11px;font-weight:700;
+  color:#fff8e0;letter-spacing:1px;
+  box-shadow:0 2px 8px rgba(200,144,32,.4),inset 0 1px 0 rgba(255,255,255,.2);
+  transition:all .15s;
+}
+.tb-village-btn:hover{background:linear-gradient(180deg,#e0a830,#c08820,#a07010);box-shadow:0 3px 12px rgba(200,144,32,.6);}
+.tb-village-btn.on{background:linear-gradient(180deg,#806010,#604808,#483408);box-shadow:inset 0 2px 4px rgba(0,0,0,.5);}
+
+.tb-stat{
+  display:flex;align-items:center;gap:5px;
+  background:linear-gradient(180deg,#2a2010,#1a1408);
+  border:1px solid var(--border1);border-radius:4px;
+  padding:4px 10px;min-width:54px;
+}
+.tb-stat-ico{font-size:15px;}
+.tb-stat-val{font-family:'Cinzel',serif;font-size:12px;font-weight:700;color:var(--text1);}
+
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:6px;}
+#save-ind{font-family:'Cinzel',serif;font-size:9px;color:var(--green3);opacity:0;transition:opacity .5s;letter-spacing:1px;}
+#save-ind.on{opacity:1;}
+.tb-reset{font-family:'Cinzel',serif;font-size:9px;color:var(--red3);background:rgba(200,48,32,.15);border:1px solid rgba(200,48,32,.4);padding:4px 10px;border-radius:3px;cursor:pointer;letter-spacing:1px;}
+.tb-reset:hover{background:rgba(200,48,32,.3);}
+
+/* ═══ MAIN LAYOUT ═══ */
+#game-wrap{position:fixed;top:52px;left:0;right:320px;bottom:0;overflow:hidden;}
+#right-panel{position:fixed;top:52px;right:0;bottom:0;width:320px;background:linear-gradient(180deg,#141009,#0e0c07);border-left:1px solid var(--border2);display:flex;flex-direction:column;box-shadow:-4px 0 24px rgba(0,0,0,.8);}
+
+/* ═══ ISO CANVAS ═══ */
+#iso-view{width:100%;height:100%;overflow:hidden;cursor:grab;position:relative;}
+#iso-view.grabbing{cursor:grabbing;}
+#iso-canvas{position:absolute;top:0;left:0;display:block;}
+
+/* ═══ MAP TOGGLE (bottom-left) ═══ */
+#map-btns{
+  position:absolute;bottom:16px;left:16px;
+  display:flex;gap:6px;z-index:50;
+}
+.map-btn{
+  display:flex;align-items:center;gap:6px;
+  background:linear-gradient(180deg,rgba(30,22,10,.95),rgba(15,12,6,.95));
+  border:1px solid var(--border2);border-radius:5px;
+  padding:8px 14px;cursor:pointer;
+  font-family:'Cinzel',serif;font-size:10px;font-weight:600;
+  color:var(--text2);letter-spacing:1px;
+  box-shadow:0 4px 16px rgba(0,0,0,.7);transition:all .15s;
+}
+.map-btn:hover{border-color:var(--border3);color:var(--gold1);}
+.map-btn.on{background:linear-gradient(180deg,rgba(120,88,8,.9),rgba(80,56,4,.9));border-color:var(--gold1);color:var(--gold1);}
+
+/* ═══ HEX VIEW ═══ */
+#hex-view{width:100%;height:100%;overflow:hidden;cursor:grab;position:relative;display:none;}
+#hex-canvas{position:absolute;top:0;left:0;display:block;}
+
+/* ═══ RIGHT PANEL TABS ═══ */
+.rp-tabs{display:flex;flex-shrink:0;border-bottom:1px solid var(--border1);}
+.rp-tab{
+  flex:1;padding:9px 4px;background:none;border:none;
+  border-bottom:2px solid transparent;
+  color:var(--text3);font-family:'Cinzel',serif;font-size:8px;letter-spacing:1px;
+  cursor:pointer;transition:all .15s;
+}
+.rp-tab.on{color:var(--gold1);border-bottom-color:var(--gold2);background:rgba(240,192,64,.04);}
+.rp-tab:hover:not(.on){color:var(--text2);}
+
+.rp-body{flex:1;overflow-y:auto;padding:10px;}
+.rp-body::-webkit-scrollbar{width:4px;}
+.rp-body::-webkit-scrollbar-track{background:var(--dark2);}
+.rp-body::-webkit-scrollbar-thumb{background:var(--gold4);border-radius:2px;}
+
+/* ═══ EPOCH CARD ═══ */
+.ep-card{
+  background:linear-gradient(135deg,rgba(120,80,8,.3),rgba(60,40,4,.2));
+  border:1px solid var(--border2);border-radius:6px;
+  padding:12px;margin-bottom:10px;
+  box-shadow:0 2px 12px rgba(0,0,0,.5),inset 0 1px 0 rgba(240,192,64,.1);
+}
+.ep-title{font-family:'Cinzel',serif;font-size:14px;font-weight:900;color:var(--gold1);margin-bottom:2px;}
+.ep-sub{font-size:11px;color:var(--text3);font-style:italic;margin-bottom:8px;}
+.ep-bar-bg{height:6px;background:rgba(0,0,0,.5);border-radius:3px;overflow:hidden;border:1px solid rgba(240,192,64,.2);margin-bottom:3px;}
+.ep-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold3),var(--gold1));border-radius:3px;transition:width .5s;}
+.ep-pct{font-family:'Cinzel',serif;font-size:9px;color:var(--text3);text-align:right;}
+.ep-hint{font-size:10px;color:var(--text4);font-style:italic;margin-top:6px;padding-top:6px;border-top:1px solid var(--border1);}
+
+/* ═══ SECTION HEADER ═══ */
+.sec-hdr{
+  display:flex;align-items:center;gap:6px;
+  font-family:'Cinzel',serif;font-size:9px;font-weight:700;
+  color:var(--gold2);letter-spacing:2px;
+  margin-bottom:8px;padding-bottom:5px;
+  border-bottom:1px solid var(--border1);
+}
+.sec-hdr-ico{font-size:12px;}
+
+/* ═══ BUILDING ROW (Forge of Empires style) ═══ */
+.bld-row{
+  display:flex;align-items:center;gap:8px;
+  background:linear-gradient(180deg,rgba(40,30,12,.8),rgba(20,16,6,.8));
+  border:1px solid rgba(120,88,8,.4);border-radius:6px;
+  padding:8px;margin-bottom:6px;cursor:pointer;
+  transition:all .15s;position:relative;overflow:hidden;
+}
+.bld-row::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(240,192,64,.2),transparent);}
+.bld-row:hover{border-color:var(--border2);background:linear-gradient(180deg,rgba(60,44,16,.8),rgba(30,22,8,.8));}
+.bld-row.busy{border-color:rgba(224,128,32,.5);}
+
+.bld-portrait{
+  width:44px;height:44px;border-radius:5px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:26px;
+  background:linear-gradient(135deg,rgba(60,44,16,.9),rgba(30,22,8,.9));
+  border:1px solid rgba(120,88,8,.5);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+.bld-info{flex:1;min-width:0;}
+.bld-name{font-family:'Cinzel',serif;font-size:11px;font-weight:700;color:var(--text1);margin-bottom:2px;display:flex;align-items:center;gap:5px;}
+.bld-lvl-badge{font-size:9px;background:rgba(168,120,16,.3);border:1px solid rgba(168,120,16,.6);color:var(--gold2);padding:1px 5px;border-radius:3px;}
+.bld-eff{font-size:10px;color:var(--green3);margin-bottom:3px;}
+.bld-prod-bar{height:4px;background:rgba(0,0,0,.5);border-radius:2px;overflow:hidden;margin-bottom:2px;}
+.bld-prod-fill{height:100%;background:linear-gradient(90deg,var(--green2),var(--green3));border-radius:2px;transition:width .8s linear;}
+.bld-timer{font-size:9px;color:var(--amber);font-family:'Cinzel',serif;}
+
+.bld-action{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.collect-btn{
+  width:34px;height:34px;border-radius:50%;border:2px solid var(--gold2);
+  background:linear-gradient(180deg,rgba(168,120,16,.4),rgba(100,72,8,.4));
+  color:var(--gold1);font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;box-shadow:0 2px 8px rgba(168,120,16,.3);
+}
+.collect-btn:hover{background:linear-gradient(180deg,rgba(240,192,64,.3),rgba(168,120,16,.3));box-shadow:0 3px 12px rgba(240,192,64,.4);}
+.collect-btn:disabled{opacity:.3;cursor:not-allowed;}
+.upgrade-btn{
+  font-family:'Cinzel',serif;font-size:8px;color:var(--text3);
+  background:none;border:none;cursor:pointer;letter-spacing:.5px;
+  padding:2px 4px;
+}
+.upgrade-btn:hover{color:var(--gold2);}
+
+/* ═══ COST TAGS ═══ */
+.cost-row{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap;}
+.ctag{font-size:9px;padding:1px 5px;border-radius:3px;border:1px solid;font-family:'Cinzel',serif;}
+.cok{background:rgba(74,144,48,.2);border-color:rgba(74,144,48,.5);color:var(--green3);}
+.cno{background:rgba(192,48,32,.2);border-color:rgba(192,48,32,.5);color:var(--red3);}
+.ctimer{background:rgba(60,40,4,.4);border-color:rgba(120,88,8,.4);color:var(--text3);}
+
+/* ═══ BUILD BTN ═══ */
+.build-btn{
+  width:100%;padding:7px;margin-top:6px;
+  background:linear-gradient(180deg,#c89020,#a07010,#805808);
+  border:1px solid var(--gold2);border-radius:4px;
+  color:#fff8e0;font-family:'Cinzel',serif;font-size:9px;letter-spacing:1px;font-weight:700;
+  cursor:pointer;transition:all .15s;
+  box-shadow:0 2px 8px rgba(168,120,16,.4),inset 0 1px 0 rgba(255,255,255,.15);
+}
+.build-btn:hover:not(:disabled){background:linear-gradient(180deg,#e0a830,#c08820,#a07010);}
+.build-btn:disabled{opacity:.35;cursor:not-allowed;}
+.lock-msg{font-size:9px;color:var(--text4);font-style:italic;margin-top:4px;}
+.max-msg{font-size:9px;color:var(--gold3);text-align:center;padding:4px;font-family:'Cinzel',serif;}
+
+/* ═══ PROGRESS BAR (building) ═══ */
+.prog-wrap{margin-top:5px;}
+.prog-bg{height:5px;background:rgba(0,0,0,.5);border-radius:3px;overflow:hidden;border:1px solid rgba(224,128,32,.2);}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--amber2),var(--amber));border-radius:3px;transition:width .8s linear;}
+.prog-txt{font-size:9px;color:var(--amber);text-align:center;margin-top:2px;font-family:'Cinzel',serif;}
+
+/* ═══ TECH CARD ═══ */
+.tech-card{
+  background:linear-gradient(180deg,rgba(30,22,8,.8),rgba(16,12,4,.8));
+  border:1px solid rgba(120,88,8,.3);border-radius:6px;
+  padding:9px;margin-bottom:6px;cursor:pointer;transition:all .15s;
+  position:relative;overflow:hidden;
+}
+.tech-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(240,192,64,.15),transparent);}
+.tech-card:hover:not(.lk):not(.dn){border-color:var(--border2);}
+.tech-card.dn{border-color:rgba(74,144,48,.4);background:linear-gradient(180deg,rgba(20,40,10,.6),rgba(10,20,5,.6));}
+.tech-card.rsch{border-color:rgba(40,96,176,.4);background:linear-gradient(180deg,rgba(10,20,40,.6),rgba(5,10,20,.6));}
+.tech-card.lk{opacity:.4;cursor:not-allowed;}
+.tech-top{display:flex;align-items:center;gap:7px;margin-bottom:3px;}
+.tech-ico{font-size:20px;}
+.tech-name{font-family:'Cinzel',serif;font-size:11px;font-weight:700;color:var(--text1);flex:1;}
+.tech-badge{font-size:8px;padding:2px 6px;border-radius:10px;border:1px solid;font-family:'Cinzel',serif;}
+.tb-done{background:rgba(74,144,48,.2);border-color:rgba(74,144,48,.5);color:var(--green3);}
+.tb-prog{background:rgba(40,96,176,.2);border-color:rgba(40,96,176,.5);color:var(--blue2);}
+.tb-avail{background:rgba(168,120,16,.2);border-color:rgba(168,120,16,.5);color:var(--gold2);}
+.tb-lock{background:rgba(40,30,10,.3);border-color:rgba(80,60,20,.3);color:var(--text4);}
+.tech-desc{font-size:10px;color:var(--text3);font-style:italic;margin-bottom:4px;line-height:1.4;}
+
+/* ═══ UNIT ROW ═══ */
+.unit-row{
+  display:flex;align-items:center;gap:8px;
+  background:linear-gradient(180deg,rgba(40,30,12,.8),rgba(20,16,6,.8));
+  border:1px solid rgba(120,88,8,.3);border-radius:6px;
+  padding:8px;margin-bottom:6px;
+  position:relative;overflow:hidden;
+}
+.unit-row::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(240,192,64,.15),transparent);}
+.unit-portrait{
+  width:48px;height:48px;border-radius:5px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:28px;
+  background:linear-gradient(135deg,rgba(60,44,16,.9),rgba(30,22,8,.9));
+  border:1px solid rgba(120,88,8,.4);
+}
+.unit-info{flex:1;}
+.unit-name{font-family:'Cinzel',serif;font-size:11px;font-weight:700;color:var(--text1);margin-bottom:3px;}
+.unit-stats{display:flex;gap:8px;font-size:10px;margin-bottom:4px;}
+.u-atk{color:var(--red3);font-weight:700;}
+.u-def{color:var(--blue2);font-weight:700;}
+.unit-hp-bar{height:3px;background:rgba(0,0,0,.5);border-radius:2px;overflow:hidden;margin-bottom:2px;}
+.unit-hp-fill{height:100%;background:linear-gradient(90deg,var(--green2),var(--green3));border-radius:2px;}
+.unit-count{font-family:'Cinzel',serif;font-size:22px;font-weight:900;color:var(--gold1);min-width:32px;text-align:center;}
+.train-btn{
+  padding:5px 8px;background:linear-gradient(180deg,rgba(120,88,8,.5),rgba(80,56,4,.5));
+  border:1px solid rgba(168,120,16,.5);color:var(--gold2);
+  font-family:'Cinzel',serif;font-size:9px;cursor:pointer;border-radius:4px;
+  transition:all .15s;display:block;width:100%;margin-top:3px;
+}
+.train-btn:hover:not(:disabled){background:linear-gradient(180deg,rgba(240,192,64,.2),rgba(168,120,16,.2));color:var(--gold1);}
+.train-btn:disabled{opacity:.3;cursor:not-allowed;}
+
+/* ═══ POWER BOX ═══ */
+.power-box{
+  background:linear-gradient(135deg,rgba(120,80,8,.25),rgba(60,40,4,.15));
+  border:1px solid var(--border2);border-radius:6px;
+  padding:10px 14px;margin-top:10px;
+  box-shadow:0 2px 12px rgba(0,0,0,.4);
+}
+.power-lbl{font-family:'Cinzel',serif;font-size:8px;color:var(--text3);letter-spacing:2px;margin-bottom:4px;}
+.power-val{font-family:'Cinzel',serif;font-size:24px;font-weight:900;color:var(--gold1);}
+.power-unit{font-size:11px;color:var(--text3);margin-left:4px;}
+
+/* ═══ NOTIFICATION ═══ */
+#notif{
+  position:fixed;top:62px;left:50%;
+  transform:translateX(-50%) translateY(-10px);
+  background:linear-gradient(180deg,rgba(30,20,8,.97),rgba(15,10,4,.97));
+  border:1px solid var(--gold2);color:var(--gold1);
+  font-family:'Cinzel',serif;font-size:10px;padding:8px 20px;
+  letter-spacing:1px;z-index:300;opacity:0;
+  transition:opacity .2s,transform .2s;pointer-events:none;
+  border-radius:4px;box-shadow:0 4px 20px rgba(0,0,0,.8),0 0 20px rgba(240,192,64,.15);
+  white-space:nowrap;
+}
+#notif.on{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ═══ HEX POP ═══ */
+#hpop{
+  position:fixed;bottom:14px;left:14px;
+  background:linear-gradient(135deg,rgba(25,18,8,.97),rgba(12,9,4,.97));
+  border:1px solid var(--border2);padding:10px 14px;z-index:60;
+  border-radius:6px;opacity:0;transition:opacity .2s;
+  pointer-events:none;min-width:170px;
+  box-shadow:0 4px 20px rgba(0,0,0,.8);
+}
+#hpop.on{opacity:1;}
+#hptit{font-family:'Cinzel',serif;font-size:12px;font-weight:700;color:var(--gold1);margin-bottom:3px;}
+#hpdesc{font-size:11px;color:var(--text3);font-style:italic;}
+
+/* ═══ BUILDING TOOLTIP ═══ */
+#btip{
+  position:fixed;
+  background:linear-gradient(135deg,rgba(25,18,8,.97),rgba(12,9,4,.97));
+  border:1px solid var(--border2);color:var(--text1);
+  padding:6px 12px;border-radius:4px;
+  font-family:'Cinzel',serif;font-size:10px;
+  pointer-events:none;opacity:0;transition:opacity .15s;z-index:150;white-space:nowrap;
+  box-shadow:0 4px 14px rgba(0,0,0,.8);
+}
+#btip.on{opacity:1;}
+
+/* ═══ SCROLLBAR ═══ */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--dark2);}
+::-webkit-scrollbar-thumb{background:var(--gold4);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <div class="tb-res">
+    <span class="tb-res-ico">🌾</span>
+    <div><div class="tb-res-val" id="rf">50</div><div class="tb-res-rate" id="rrf">+2/хв</div></div>
+  </div>
+  <div class="tb-res">
+    <span class="tb-res-ico">🪵</span>
+    <div><div class="tb-res-val" id="rw">50</div><div class="tb-res-rate" id="rrw">+2/хв</div></div>
+  </div>
+  <div class="tb-res">
+    <span class="tb-res-ico">🪨</span>
+    <div><div class="tb-res-val" id="rs">20</div><div class="tb-res-rate" id="rrs">+1/хв</div></div>
+  </div>
+  <div class="tb-sep"></div>
+  <div class="tb-stat"><span class="tb-stat-ico">👥</span><span class="tb-stat-val" id="rp">5</span></div>
+  <div class="tb-stat"><span class="tb-stat-ico">⚔</span><span class="tb-stat-val" id="pw">0</span></div>
+  <div class="tb-right">
+    <span id="save-ind">💾 ЗБЕРЕЖЕНО</span>
+    <button class="tb-reset" onclick="resetGame()">↺</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="game-wrap">
+  <div id="iso-view">
+    <canvas id="iso-canvas"></canvas>
+    <div id="map-btns">
+      <button class="map-btn on" id="vbtn-village" onclick="setView('village')">🏘 ПОСЕЛЕННЯ</button>
+      <button class="map-btn" id="vbtn-map" onclick="setView('map')">🗺 КАРТА</button>
+    </div>
+  </div>
+  <div id="hex-view"><canvas id="hex-canvas"></canvas></div>
+</div>
+
+<!-- RIGHT PANEL -->
+<div id="right-panel">
+  <div class="rp-tabs">
+    <button class="rp-tab on" id="btn-village" onclick="switchTab('village')">🏘 СЕЛО</button>
+    <button class="rp-tab" id="btn-tech"    onclick="switchTab('tech')">📜 ЗНАННЯ</button>
+    <button class="rp-tab" id="btn-army"    onclick="switchTab('army')">⚔ АРМІЯ</button>
+    <button class="rp-tab" id="btn-build"   onclick="switchTab('build')">🏗 БУДУВАТИ</button>
+  </div>
+
+  <!-- VILLAGE TAB -->
+  <div class="rp-body on" id="tab-village">
+    <div class="ep-card">
+      <div class="ep-title">🪨 Кам'яний вік</div>
+      <div class="ep-sub">Твоє плем'я починає свій шлях...</div>
+      <div class="ep-bar-bg"><div class="ep-bar-fill" id="epfill" style="width:0%"></div></div>
+      <div class="ep-pct" id="eppct">0% до Бронзового віку</div>
+      <div class="ep-hint">📋 Ратуша рів.5 · 500 їжі · 500 каменю</div>
+    </div>
+    <div class="sec-hdr"><span class="sec-hdr-ico">🏗</span> МОЇ БУДІВЛІ</div>
+    <div id="my-bld-list"></div>
+  </div>
+
+  <!-- TECH TAB -->
+  <div class="rp-body" id="tab-tech">
+    <div class="sec-hdr"><span class="sec-hdr-ico">📜</span> ДЕРЕВО ЗНАНЬ</div>
+    <div id="tech-list"></div>
+  </div>
+
+  <!-- ARMY TAB -->
+  <div class="rp-body" id="tab-army">
+    <div class="sec-hdr"><span class="sec-hdr-ico">⚔</span> ВОЇНИ ПЛЕМЕНІ</div>
+    <div id="army-list"></div>
+  </div>
+
+  <!-- BUILD TAB -->
+  <div class="rp-body" id="tab-build">
+    <div class="sec-hdr"><span class="sec-hdr-ico">🏗</span> БУДІВНИЦТВО</div>
+    <div id="build-list"></div>
+  </div>
+</div>
+
+<div id="notif"></div>
+<div id="hpop"><div id="hptit">—</div><div id="hpdesc">—</div></div>
+<div id="btip"></div>
+
+<script>
+// ══════════════════════════════════════════════
+var SAVE_KEY = 'kk_v5';
+
+var BD = {
+  townhall:   {ico:'🏛',n:'Ратуша',    d:'Центр поселення.',          bc:{f:0,w:30,s:50}, m:1.6,t:30, mx:20,req:null,      rl:0,eff:function(l){return 'Рівень: '+l;}},
+  farm:       {ico:'🌾',n:'Пасовище',  d:'Виробляє їжу.',             bc:{f:0,w:20,s:0},  m:1.5,t:20, mx:10,req:null,      rl:0,eff:function(l){return '+'+l*2+' їжі/хв';}},
+  lumber:     {ico:'🪵',n:'Лісоруб',   d:'Заготівля деревини.',       bc:{f:10,w:0,s:10}, m:1.5,t:20, mx:10,req:null,      rl:0,eff:function(l){return '+'+l*2+' дерева/хв';}},
+  quarry:     {ico:'⛏', n:'Каменярня', d:'Видобуток каменю.',         bc:{f:10,w:30,s:0}, m:1.5,t:25, mx:10,req:null,      rl:0,eff:function(l){return '+'+l+' каменю/хв';}},
+  barracks:   {ico:'⚔', n:'Казарма',   d:'Тренування воїнів.',        bc:{f:20,w:60,s:40},m:1.8,t:40, mx:10,req:'townhall',rl:2,eff:function(l){return 'Армія +'+l*10+'%';}},
+  storehouse: {ico:'📦',n:'Сховище',   d:'Збільшує ліміт ресурсів.', bc:{f:0,w:40,s:20}, m:1.6,t:25, mx:10,req:null,      rl:0,eff:function(l){return 'Ліміт: '+(300+l*200);}},
+};
+var BK = Object.keys(BD);
+
+var TD = {
+  agriculture:{ico:'🌱',n:'Землеробство', d:'+50% їжі з пасовищ.',  c:{f:30,w:20,s:0}, t:60, req:null},
+  logging:    {ico:'🪓',n:'Рубання лісу', d:'+50% деревини.',        c:{f:20,w:0,s:10}, t:60, req:null},
+  masonry:    {ico:'🧱',n:'Каменярство',  d:'+50% каменю.',          c:{f:10,w:20,s:30},t:80, req:null},
+  warfare:    {ico:'⚔', n:'Бойове мист.', d:'Нові типи воїнів.',     c:{f:50,w:30,s:20},t:120,req:'barracks'},
+  trading:    {ico:'🤝',n:'Торгівля',     d:'Торговий пост.',        c:{f:40,w:40,s:40},t:120,req:'masonry'},
+};
+var TK = Object.keys(TD);
+
+function freshState(){
+  return {
+    food:50,wood:50,stone:20,pop:5,
+    savedAt:Date.now(),seed:Math.floor(Math.random()*99999),
+    bld:{
+      townhall:  {l:1,busy:false,finishAt:0},
+      farm:      {l:0,busy:false,finishAt:0},
+      lumber:    {l:0,busy:false,finishAt:0},
+      quarry:    {l:0,busy:false,finishAt:0},
+      barracks:  {l:0,busy:false,finishAt:0},
+      storehouse:{l:0,busy:false,finishAt:0},
+    },
+    tech:{
+      agriculture:{done:false,busy:false,finishAt:0},
+      logging:    {done:false,busy:false,finishAt:0},
+      masonry:    {done:false,busy:false,finishAt:0},
+      warfare:    {done:false,busy:false,finishAt:0},
+      trading:    {done:false,busy:false,finishAt:0},
+    },
+    army:{hunters:0,spearmen:0,scouts:0},
+  };
+}
+
+var G = freshState();
+
+function bl(id){return (G.bld[id]&&G.bld[id].l!==undefined)?G.bld[id].l:0;}
+function td(id){return !!(G.tech[id]&&G.tech[id].done);}
+function fR(){return Math.round((2+bl('farm')*2)*(td('agriculture')?1.5:1));}
+function wR(){return Math.round((2+bl('lumber')*2)*(td('logging')?1.5:1));}
+function sR(){return Math.round((1+bl('quarry'))*(td('masonry')?1.5:1));}
+function mS(){return 300+bl('storehouse')*200;}
+
+function loadGame(){
+  try{
+    var raw=localStorage.getItem(SAVE_KEY);
+    if(!raw){G=freshState();return;}
+    var p=JSON.parse(raw);
+    if(!p||!p.bld||!p.tech){G=freshState();return;}
+    G=freshState();
+    if(typeof p.food==='number')G.food=p.food;
+    if(typeof p.wood==='number')G.wood=p.wood;
+    if(typeof p.stone==='number')G.stone=p.stone;
+    if(typeof p.pop==='number')G.pop=p.pop;
+    if(typeof p.seed==='number')G.seed=p.seed;
+    if(typeof p.savedAt==='number')G.savedAt=p.savedAt;
+    if(p.bld)BK.forEach(function(id){if(p.bld[id]){G.bld[id].l=parseInt(p.bld[id].l)||0;G.bld[id].busy=!!p.bld[id].busy;G.bld[id].finishAt=parseInt(p.bld[id].finishAt)||0;}});
+    if(p.tech)TK.forEach(function(id){if(p.tech[id]){G.tech[id].done=!!p.tech[id].done;G.tech[id].busy=!!p.tech[id].busy;G.tech[id].finishAt=parseInt(p.tech[id].finishAt)||0;}});
+    if(p.army){G.army.hunters=parseInt(p.army.hunters)||0;G.army.spearmen=parseInt(p.army.spearmen)||0;G.army.scouts=parseInt(p.army.scouts)||0;}
+    var now=Date.now(),off=Math.min((now-G.savedAt)/1000,43200);
+    if(off>2){var lim=mS();G.food=Math.min(lim,G.food+fR()*off/60);G.wood=Math.min(lim,G.wood+wR()*off/60);G.stone=Math.min(lim,G.stone+sR()*off/60);}
+    var now2=Date.now();
+    BK.forEach(function(id){var b=G.bld[id];if(b.busy&&b.finishAt&&now2>=b.finishAt){b.busy=false;b.l++;b.finishAt=0;}});
+    TK.forEach(function(id){var t=G.tech[id];if(t.busy&&t.finishAt&&now2>=t.finishAt){t.busy=false;t.done=true;t.finishAt=0;}});
+  }catch(e){G=freshState();}
+}
+
+function saveGame(){
+  try{G.savedAt=Date.now();localStorage.setItem(SAVE_KEY,JSON.stringify(G));var el=document.getElementById('save-ind');el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(function(){el.classList.remove('on');},1500);}catch(e){}
+}
+
+function resetGame(){
+  if(!confirm('Скинути гру?'))return;
+  localStorage.removeItem(SAVE_KEY);G=freshState();buildMap(G.seed);renderAll();updateHUD();notify('🔄 Нова гра!');
+}
+
+function updateHUD(){
+  var fr=fR(),wr=wR(),sr=sR();
+  document.getElementById('rf').textContent=Math.floor(G.food);
+  document.getElementById('rw').textContent=Math.floor(G.wood);
+  document.getElementById('rs').textContent=Math.floor(G.stone);
+  document.getElementById('rp').textContent=G.pop+bl('farm')*5;
+  document.getElementById('rrf').textContent='+'+fr+'/хв';
+  document.getElementById('rrw').textContent='+'+wr+'/хв';
+  document.getElementById('rrs').textContent='+'+sr+'/хв';
+  var pw=G.army.hunters*5+G.army.spearmen*8+G.army.scouts*2;
+  document.getElementById('pw').textContent=pw;
+  var p1=Math.min(1,bl('townhall')/5),p2=Math.min(1,G.food/500),p3=Math.min(1,G.stone/500);
+  var pct=Math.round((p1+p2+p3)/3*100);
+  document.getElementById('epfill').style.width=pct+'%';
+  document.getElementById('eppct').textContent=pct+'% до Бронзового віку';
+}
+
+function resTick(){
+  var lim=mS();
+  G.food=Math.min(lim,G.food+fR()/60);
+  G.wood=Math.min(lim,G.wood+wR()/60);
+  G.stone=Math.min(lim,G.stone+sR()/60);
+  updateHUD();
+}
+
+function conTick(){
+  var now=Date.now(),changed=false;
+  BK.forEach(function(id){
+    var b=G.bld[id];if(!b||!b.busy||!b.finishAt)return;
+    if(now>=b.finishAt){b.busy=false;b.l++;b.finishAt=0;notify('✅ '+BD[id].n+' — Рів.'+b.l+'!');changed=true;}
+    else{var rem=Math.ceil((b.finishAt-now)/1000),tot=BD[id].t*(b.l||1),pct=tot>0?Math.min(100,Math.round((1-rem/tot)*100)):0;
+      var tf=document.getElementById('bt-'+id),tt=document.getElementById('btt-'+id);
+      if(tf)tf.style.width=pct+'%';if(tt)tt.textContent='⏳ '+rem+'с';}
+  });
+  TK.forEach(function(id){
+    var t=G.tech[id];if(!t||!t.busy||!t.finishAt)return;
+    if(now>=t.finishAt){t.busy=false;t.done=true;t.finishAt=0;notify('✅ «'+TD[id].n+'» вивчено!');changed=true;}
+    else{var rem=Math.ceil((t.finishAt-now)/1000),pct=Math.min(100,Math.round((1-rem/TD[id].t)*100));
+      var tf=document.getElementById('tt-'+id),tt=document.getElementById('ttt-'+id);
+      if(tf)tf.style.width=pct+'%';if(tt)tt.textContent='⏳ '+rem+'с';}
+  });
+  if(changed){renderAll();saveGame();}
+}
+
+function renderAll(){renderMyBld();renderBuildTab();renderTech();renderArmy();updateHUD();}
+
+// Helpers
+function bCost(id){var d=BD[id],l=bl(id),m=Math.pow(d.m,l);return{f:Math.floor((d.bc.f||0)*m),w:Math.floor((d.bc.w||0)*m),s:Math.floor((d.bc.s||0)*m)};}
+function afford(c){return G.food>=(c.f||0)&&G.wood>=(c.w||0)&&G.stone>=(c.s||0);}
+function spend(c){G.food-=c.f||0;G.wood-=c.w||0;G.stone-=c.s||0;}
+function isLock(id){var d=BD[id];return d.req?bl(d.req)<d.rl:false;}
+function techReqOk(id){var d=TD[id];return !d.req||bl(d.req)>=1;}
+
+// ── MY BUILDINGS (village tab) ────────────────────────────
+function renderMyBld(){
+  var list=document.getElementById('my-bld-list');
+  if(!list)return;list.innerHTML='';
+  BK.forEach(function(id){
+    var d=BD[id],b=G.bld[id];
+    if(!b||b.l===0)return; // only show built buildings
+    var now=Date.now();
+    var rem=b.busy&&b.finishAt?Math.max(0,Math.ceil((b.finishAt-now)/1000)):0;
+    var tot=BD[id].t*(b.l||1);
+    var pct=rem>0?Math.min(100,Math.round((1-rem/tot)*100)):0;
+    var row=document.createElement('div');
+    row.className='bld-row'+(b.busy?' busy':'');
+    row.innerHTML=
+      '<div class="bld-portrait">'+d.ico+'</div>'+
+      '<div class="bld-info">'+
+        '<div class="bld-name">'+d.n+'<span class="bld-lvl-badge">Рів.'+b.l+'</span></div>'+
+        '<div class="bld-eff">'+d.eff(b.l)+'</div>'+
+        (b.busy?
+          '<div class="bld-prod-bar"><div class="bld-prod-fill" id="bt-'+id+'" style="width:'+pct+'%"></div></div>'+
+          '<div class="bld-timer" id="btt-'+id+'">⏳ '+rem+'с залишилось</div>'
+        :
+          '<div class="bld-prod-bar"><div class="bld-prod-fill" style="width:100%"></div></div>'+
+          '<div class="bld-timer" style="color:var(--green3)">✓ Активна</div>'
+        )+
+      '</div>'+
+      '<div class="bld-action">'+
+        '<button class="collect-btn" onclick="doUpgrade(\''+id+'\',event)">⬆</button>'+
+        '<span class="upgrade-btn">Рів.'+(b.l+1)+'</span>'+
+      '</div>';
+    list.appendChild(row);
+  });
+  if(list.innerHTML===''){list.innerHTML='<div style="text-align:center;padding:20px;font-style:italic;color:var(--text4);font-size:11px;">Іди до вкладки 🏗 БУДУВАТИ щоб зводити будівлі</div>';}
+}
+
+function doUpgrade(id,e){
+  if(e)e.stopPropagation();
+  var b=G.bld[id];
+  if(!b||b.busy||b.l>=BD[id].mx)return;
+  var c=bCost(id);
+  if(!afford(c)){notify('❌ Недостатньо ресурсів!');return;}
+  spend(c);var sec=BD[id].t*(b.l+1);
+  b.busy=true;b.finishAt=Date.now()+sec*1000;
+  notify('🏗 Покращується: '+BD[id].n+' → Рів.'+(b.l+1)+' ('+sec+'с)');
+  saveGame();renderAll();
+}
+
+// ── BUILD TAB ─────────────────────────────────────────────
+function renderBuildTab(){
+  var list=document.getElementById('build-list');
+  if(!list)return;list.innerHTML='';
+  BK.forEach(function(id){
+    var d=BD[id],b=G.bld[id];
+    if(!b)return;
+    var c=bCost(id),lk=isLock(id),mx=b.l>=d.mx;
+    var now=Date.now();
+    var rem=b.busy&&b.finishAt?Math.max(0,Math.ceil((b.finishAt-now)/1000)):0;
+    var tot=BD[id].t*(b.l||1);
+    var pct=rem>0?Math.min(100,Math.round((1-rem/tot)*100)):0;
+    var row=document.createElement('div');
+    row.className='bld-row'+(b.busy?' busy':'')+(lk?' lk':'');
+    var ch='';
+    if(!b.busy&&!mx&&!lk){
+      if(c.f>0)ch+='<span class="ctag '+(G.food>=c.f?'cok':'cno')+'">🌾'+c.f+'</span>';
+      if(c.w>0)ch+='<span class="ctag '+(G.wood>=c.w?'cok':'cno')+'">🪵'+c.w+'</span>';
+      if(c.s>0)ch+='<span class="ctag '+(G.stone>=c.s?'cok':'cno')+'">🪨'+c.s+'</span>';
+      ch+='<span class="ctag ctimer">⏱ '+d.t*(b.l+1)+'с</span>';
+    }
+    var act='';
+    if(b.busy){
+      act='<div class="prog-wrap"><div class="prog-bg"><div class="prog-fill" id="bt-'+id+'" style="width:'+pct+'%"></div></div><div class="prog-txt" id="btt-'+id+'">⏳ '+rem+'с</div></div>';
+    }else if(mx){
+      act='<div class="max-msg">✦ МАКСИМУМ</div>';
+    }else if(lk){
+      act='<div class="lock-msg">🔒 '+BD[d.req].n+' рів.'+d.rl+'</div>';
+    }else{
+      act=(ch?'<div class="cost-row">'+ch+'</div>':'')+
+          '<button class="build-btn"'+(afford(c)?'':' disabled')+' onclick="doBuild(\''+id+'\')">'+(b.l===0?'⚒ ПОБУДУВАТИ':'⬆ ПОКРАЩИТИ → Рів.'+(b.l+1))+'</button>';
+    }
+    row.innerHTML=
+      '<div class="bld-portrait">'+d.ico+'</div>'+
+      '<div class="bld-info">'+
+        '<div class="bld-name">'+d.n+(b.l>0?'<span class="bld-lvl-badge">Рів.'+b.l+'</span>':'')+'</div>'+
+        '<div class="bld-eff" style="color:var(--text3)">'+d.d+'</div>'+
+        (b.l>0?'<div class="bld-eff">'+d.eff(b.l)+'</div>':'')+
+        act+
+      '</div>';
+    list.appendChild(row);
+  });
+}
+
+function doBuild(id){
+  var b=G.bld[id];
+  if(!b||b.busy||isLock(id))return;
+  var c=bCost(id);
+  if(!afford(c)){notify('❌ Недостатньо ресурсів!');return;}
+  spend(c);var sec=BD[id].t*(b.l+1);
+  b.busy=true;b.finishAt=Date.now()+sec*1000;
+  notify('🏗 '+BD[id].n+' будується... ('+sec+'с)');
+  saveGame();renderAll();
+}
+
+// ── TECH ─────────────────────────────────────────────────
+function renderTech(){
+  var list=document.getElementById('tech-list');
+  if(!list)return;list.innerHTML='';
+  TK.forEach(function(id){
+    var d=TD[id],t=G.tech[id];if(!t)return;
+    var reqOk=techReqOk(id),lk=!reqOk;
+    var cls=t.done?'dn':(t.busy?'rsch':(lk?'lk':''));
+    var badge=t.done?'✓ ГОТОВО':(t.busy?'⚗ ПРОЦЕС':(lk?'🔒':'○ ВИВЧИТИ'));
+    var bcls=t.done?'tb-done':(t.busy?'tb-prog':(lk?'tb-lock':'tb-avail'));
+    var el=document.createElement('div');
+    el.className='tech-card '+cls;
+    if(!t.done&&!t.busy&&!lk)(function(tid){el.onclick=function(){doResearch(tid);};})(id);
+    var ch='';
+    if(!t.done&&!t.busy&&!lk){
+      if(d.c.f>0)ch+='<span class="ctag '+(G.food>=d.c.f?'cok':'cno')+'">🌾'+d.c.f+'</span>';
+      if(d.c.w>0)ch+='<span class="ctag '+(G.wood>=d.c.w?'cok':'cno')+'">🪵'+d.c.w+'</span>';
+      if(d.c.s>0)ch+='<span class="ctag '+(G.stone>=d.c.s?'cok':'cno')+'">🪨'+d.c.s+'</span>';
+      ch+='<span class="ctag ctimer">⏱ '+d.t+'с</span>';
+    }
+    var now=Date.now();
+    var rem=t.busy&&t.finishAt?Math.max(0,Math.ceil((t.finishAt-now)/1000)):0;
+    var pct=rem>0?Math.min(100,Math.round((1-rem/d.t)*100)):0;
+    var timer=t.busy?'<div class="prog-bg" style="margin-top:5px"><div class="prog-fill" id="tt-'+id+'" style="width:'+pct+'%;background:linear-gradient(90deg,#2860b0,#4890e0)"></div></div><div class="prog-txt" id="ttt-'+id+'" style="color:var(--blue2)">⏳ '+rem+'с</div>':'';
+    el.innerHTML='<div class="tech-top"><span class="tech-ico">'+d.ico+'</span><span class="tech-name">'+d.n+'</span><span class="tech-badge '+bcls+'">'+badge+'</span></div>'+
+      '<div class="tech-desc">'+d.d+'</div>'+(ch?'<div class="cost-row">'+ch+'</div>':'')+timer+
+      (lk&&d.req?'<div class="lock-msg">🔒 '+BD[d.req].n+'</div>':'');
+    list.appendChild(el);
+  });
+}
+
+function doResearch(id){
+  var d=TD[id],t=G.tech[id];
+  if(!t||t.done||t.busy)return;
+  if(!techReqOk(id)){notify('🔒 Спочатку: '+BD[d.req].n);return;}
+  var c={f:d.c.f||0,w:d.c.w||0,s:d.c.s||0};
+  if(!afford(c)){notify('❌ Недостатньо ресурсів!');return;}
+  spend(c);t.busy=true;t.finishAt=Date.now()+d.t*1000;
+  notify('📜 '+d.n+' ('+d.t+'с)');
+  saveGame();renderTech();updateHUD();
+}
+
+// ── ARMY ─────────────────────────────────────────────────
+function renderArmy(){
+  var hb=bl('barracks')>0,hw=td('warfare');
+  var pw=G.army.hunters*5+G.army.spearmen*8+G.army.scouts*2;
+  var list=document.getElementById('army-list');if(!list)return;
+  list.innerHTML=
+    (!hb?'<div style="text-align:center;padding:20px;font-style:italic;color:var(--text4);font-size:11px;">🔒 Побудуйте Казарму</div>':'')+
+    urow('🪓','Мисливець',  5,3,'hunters', hb,       'doTrain("hunters",15,5,0)',   '🌾15 🪵5')+
+    urow('🗡','Списоносець',8,6,'spearmen',hb&&hw,   'doTrain("spearmen",20,10,5)', hw?'🌾20 🪵10 🪨5':'🔒 Бойове мист.')+
+    urow('🏃','Розвідник',  2,2,'scouts',  hb,       'doTrain("scouts",10,0,0)',    '🌾10')+
+    '<div class="power-box"><div class="power-lbl">ЗАГАЛЬНА БОЙОВА СИЛА</div><div class="power-val">'+pw+'<span class="power-unit">очок</span></div></div>';
+}
+function urow(ico,n,atk,def,key,en,fn,lbl){
+  return '<div class="unit-row"><div class="unit-portrait">'+ico+'</div><div class="unit-info">'+
+    '<div class="unit-name">'+n+'</div><div class="unit-stats"><span class="u-atk">⚔ '+atk+'</span><span class="u-def">🛡 '+def+'</span></div>'+
+    '<div class="unit-hp-bar"><div class="unit-hp-fill" style="width:100%"></div></div>'+
+    '<button class="train-btn"'+(en?'':' disabled')+' onclick="'+fn+'">'+(en?'+ Навчити ('+lbl+')':lbl)+'</button>'+
+    '</div><div class="unit-count">'+G.army[key]+'</div></div>';
+}
+function doTrain(type,f,w,s){
+  if(G.food<f||G.wood<w||G.stone<s){notify('❌ Ресурсів мало!');return;}
+  G.food-=f;G.wood-=w;G.stone-=s;G.army[type]++;
+  notify('⚔ Навчено воїна!');saveGame();renderArmy();updateHUD();
+}
+
+// ── NOTIFY ───────────────────────────────────────────────
+var _nt;
+function notify(msg){var el=document.getElementById('notif');el.textContent=msg;el.classList.add('on');clearTimeout(_nt);_nt=setTimeout(function(){el.classList.remove('on');},3000);}
+
+// ── TABS ─────────────────────────────────────────────────
+function switchTab(name){
+  ['village','tech','army','build'].forEach(function(t){
+    var tb=document.getElementById('tab-'+t);
+    var bn=document.getElementById('btn-'+t);
+    if(tb)tb.classList.remove('on');
+    if(bn)bn.classList.remove('on');
+  });
+  var ta=document.getElementById('tab-'+name);
+  var ba=document.getElementById('btn-'+name);
+  if(ta)ta.classList.add('on');
+  if(ba)ba.classList.add('on');
+}
+
+var curView='village';
+function setView(v){
+  curView=v;
+  document.getElementById('vbtn-village').classList.toggle('on',v==='village');
+  document.getElementById('vbtn-map').classList.toggle('on',v==='map');
+  document.getElementById('iso-view').style.display=v==='village'?'block':'none';
+  document.getElementById('hex-view').style.display=v==='map'?'block':'none';
+  if(v==='map')resizeHex();
+}
+
+// ── ISO MAP ───────────────────────────────────────────────
+var IC=document.getElementById('iso-canvas'),IX=IC.getContext('2d');
+var isoOX=0,isoOY=0,isoDrag=false,idsx=0,idsy=0,iddx=0,iddy=0,hovBld=null,animT=0;
+var TW=68,TH=34,GN=10;
+var ISO_SLOTS={townhall:{gx:4,gy:4},farm:{gx:2,gy:6},lumber:{gx:6,gy:2},quarry:{gx:7,gy:6},barracks:{gx:1,gy:2},storehouse:{gx:6,gy:7}};
+var BCOLS={
+  townhall:  {top:'#c8b84a',left:'#887820',right:'#a89830'},
+  farm:      {top:'#78c050',left:'#3a6820',right:'#58a030'},
+  lumber:    {top:'#a87840',left:'#603820',right:'#885028'},
+  quarry:    {top:'#988870',left:'#584838',right:'#786050'},
+  barracks:  {top:'#a84040',left:'#602020',right:'#882828'},
+  storehouse:{top:'#b88028',left:'#784808',right:'#986010'},
+};
+var GCOLS=[
+  {top:'#506828',left:'#2c4010',right:'#3c5818'},
+  {top:'#586e2c',left:'#304412',right:'#40601a'},
+  {top:'#4a6224',left:'#284010',right:'#385615'},
+  {top:'#526a28',left:'#2e4212',right:'#3e5c1a'},
+  {top:'#5a7030',left:'#344614',right:'#446220'},
+];
+
+function i2s(gx,gy){return{x:(gx-gy)*(TW/2)+isoOX+iddx,y:(gx+gy)*(TH/2)+isoOY+iddy};}
+
+function cube(gx,gy,h,c,a){
+  var p=i2s(gx,gy),cx=p.x,cy=p.y;
+  IX.save();IX.globalAlpha=a===undefined?1:a;
+  IX.beginPath();IX.moveTo(cx,cy-h);IX.lineTo(cx+TW/2,cy-h+TH/2);IX.lineTo(cx,cy-h+TH);IX.lineTo(cx-TW/2,cy-h+TH/2);IX.closePath();IX.fillStyle=c.top;IX.fill();IX.strokeStyle='rgba(0,0,0,.4)';IX.lineWidth=.5;IX.stroke();
+  IX.beginPath();IX.moveTo(cx-TW/2,cy-h+TH/2);IX.lineTo(cx,cy-h+TH);IX.lineTo(cx,cy+TH);IX.lineTo(cx-TW/2,cy+TH/2);IX.closePath();IX.fillStyle=c.left;IX.fill();IX.strokeStyle='rgba(0,0,0,.35)';IX.lineWidth=.5;IX.stroke();
+  IX.beginPath();IX.moveTo(cx,cy-h+TH);IX.lineTo(cx+TW/2,cy-h+TH/2);IX.lineTo(cx+TW/2,cy+TH/2);IX.lineTo(cx,cy+TH);IX.closePath();IX.fillStyle=c.right;IX.fill();IX.strokeStyle='rgba(0,0,0,.35)';IX.lineWidth=.5;IX.stroke();
+  IX.restore();
+}
+
+function drawBld(id,gx,gy){
+  var b=G.bld[id];if(!b)return;
+  var lvl=b.l||0,busy=!!b.busy,p=i2s(gx,gy),cx=p.x,cy=p.y;
+  if(lvl===0&&!busy){
+    // empty plot
+    cube(gx,gy,2,{top:'#3a3020',left:'#201808',right:'#2a2010'},0.5);
+    IX.save();IX.globalAlpha=.2;IX.strokeStyle='#c8a030';IX.setLineDash([4,4]);IX.lineWidth=1;
+    IX.beginPath();IX.moveTo(cx-TW/2+6,cy+TH/2);IX.lineTo(cx+TW/2-6,cy+TH/2);IX.stroke();
+    IX.beginPath();IX.moveTo(cx,cy+4);IX.lineTo(cx,cy+TH-4);IX.stroke();
+    IX.restore();return;
+  }
+  var h=busy?8:Math.min(6+lvl*5,52);
+  cube(gx,gy,h,BCOLS[id]||GCOLS[0]);
+  IX.save();
+  if(id==='townhall'){
+    var by=cy-h-TH/2,W=22+Math.min(lvl,4)*2,H=32+lvl*3;
+    // main tower body
+    IX.fillStyle='#d8c870';IX.strokeStyle='rgba(0,0,0,.4)';IX.lineWidth=.8;
+    IX.beginPath();IX.moveTo(cx-W/2,by+H);IX.lineTo(cx-W/2,by+6);IX.lineTo(cx-W/3,by);IX.lineTo(cx,by-10-lvl*2);IX.lineTo(cx+W/3,by);IX.lineTo(cx+W/2,by+6);IX.lineTo(cx+W/2,by+H);IX.closePath();IX.fill();IX.stroke();
+    // window
+    IX.fillStyle='#3050a0';IX.beginPath();IX.arc(cx,by+H*.4,3.5,0,Math.PI*2);IX.fill();
+    // flag pole
+    IX.strokeStyle='#604010';IX.lineWidth=1.5;IX.beginPath();IX.moveTo(cx,by-10-lvl*2);IX.lineTo(cx,by-24-lvl*2);IX.stroke();
+    // flag
+    IX.fillStyle='#c02020';IX.beginPath();IX.moveTo(cx,by-24-lvl*2);IX.lineTo(cx+13,by-18-lvl*2);IX.lineTo(cx,by-12-lvl*2);IX.closePath();IX.fill();
+    // battlements
+    for(var i=0;i<3;i++){IX.fillStyle='#c0a840';IX.fillRect(cx-W/2+i*(W/2),by-2,W/3-1,5);}
+  }
+  else if(id==='farm'){
+    var by=cy-h-TH/2-7;
+    IX.fillStyle='#c06020';IX.strokeStyle='rgba(0,0,0,.4)';IX.lineWidth=.6;
+    IX.fillRect(cx-11,by,22,16);IX.strokeRect(cx-11,by,22,16);
+    IX.fillStyle='#702808';IX.beginPath();IX.moveTo(cx-13,by);IX.lineTo(cx,by-11);IX.lineTo(cx+13,by);IX.closePath();IX.fill();IX.stroke();
+    // door
+    IX.fillStyle='#3a1a08';IX.fillRect(cx-3,by+7,6,9);
+    // wheat
+    for(var i=0;i<5;i++){IX.fillStyle='#c89828';IX.strokeStyle='#806010';IX.lineWidth=.8;IX.beginPath();IX.moveTo(cx-16+i*8,cy-h-2);IX.lineTo(cx-16+i*8,cy-h-8);IX.stroke();IX.beginPath();IX.arc(cx-16+i*8,cy-h-9,2.5,0,Math.PI*2);IX.fill();}
+  }
+  else if(id==='lumber'){
+    var by=cy-h-TH/2-4;
+    // log pile
+    for(var i=0;i<3;i++){
+      IX.fillStyle='#906028';IX.beginPath();IX.ellipse(cx-8+i*8,by+12,5.5,3.5,0,0,Math.PI*2);IX.fill();
+      IX.fillStyle='#c09060';IX.beginPath();IX.ellipse(cx-8+i*8,by+12,2,2,0,0,Math.PI*2);IX.fill();
+      IX.strokeStyle='rgba(0,0,0,.3)';IX.lineWidth=.5;IX.beginPath();IX.ellipse(cx-8+i*8,by+12,5.5,3.5,0,0,Math.PI*2);IX.stroke();
+    }
+    // stump
+    IX.fillStyle='#704820';IX.fillRect(cx-5,by-1,10,10);IX.fillStyle='#906040';IX.fillRect(cx-5,by-1,10,3);
+    // axe
+    IX.strokeStyle='#604010';IX.lineWidth=1.5;IX.beginPath();IX.moveTo(cx+10,by-4);IX.lineTo(cx+4,by+6);IX.stroke();
+    IX.fillStyle='#808898';IX.beginPath();IX.moveTo(cx+10,by-4);IX.lineTo(cx+14,by);IX.lineTo(cx+10,by+4);IX.closePath();IX.fill();
+  }
+  else if(id==='quarry'){
+    var by=cy-h-TH/2;
+    var rks=[[cx-9,by-3,6,4.5],[cx+4,by-8,7,5.5],[cx-3,by-13,5,4],[cx+7,by-1,5,3.5]];
+    var rc=['#989080','#807870','#b0a898','#686058'];
+    for(var i=0;i<rks.length;i++){
+      IX.fillStyle=rc[i];IX.beginPath();IX.ellipse(rks[i][0],rks[i][1],rks[i][2],rks[i][3],.3,0,Math.PI*2);IX.fill();
+      IX.strokeStyle='rgba(0,0,0,.25)';IX.lineWidth=.6;IX.stroke();
+    }
+    // pickaxe
+    IX.strokeStyle='#604010';IX.lineWidth=1.5;IX.beginPath();IX.moveTo(cx-12,by+4);IX.lineTo(cx-4,by-4);IX.stroke();
+    IX.fillStyle='#888';IX.beginPath();IX.moveTo(cx-12,by+4);IX.lineTo(cx-16,by+2);IX.lineTo(cx-14,by-2);IX.lineTo(cx-10,by);IX.closePath();IX.fill();
+  }
+  else if(id==='barracks'){
+    var by=cy-h-TH/2-6;
+    IX.fillStyle='#785038';IX.strokeStyle='rgba(0,0,0,.4)';IX.lineWidth=.6;
+    IX.fillRect(cx-14,by,28,18);IX.strokeRect(cx-14,by,28,18);
+    IX.fillStyle='#502818';IX.beginPath();IX.moveTo(cx-16,by);IX.lineTo(cx,by-9);IX.lineTo(cx+16,by);IX.closePath();IX.fill();IX.stroke();
+    // windows
+    IX.fillStyle='#3050a0';IX.fillRect(cx-10,by+4,5,6);IX.fillRect(cx+5,by+4,5,6);
+    // door
+    IX.fillStyle='#301808';IX.fillRect(cx-3,by+8,6,10);
+    // spears
+    for(var i=-1;i<=1;i+=2){IX.strokeStyle='#a89030';IX.lineWidth=1.2;IX.beginPath();IX.moveTo(cx+i*5,by+2);IX.lineTo(cx+i*5,by+18);IX.stroke();IX.fillStyle='#c8c040';IX.beginPath();IX.moveTo(cx+i*5,by+2);IX.lineTo(cx+i*5-2,by+7);IX.lineTo(cx+i*5+2,by+7);IX.closePath();IX.fill();}
+  }
+  else if(id==='storehouse'){
+    var by=cy-h-TH/2-4;
+    IX.fillStyle='#b08840';IX.strokeStyle='rgba(0,0,0,.4)';IX.lineWidth=.6;
+    IX.fillRect(cx-12,by+4,24,16);IX.strokeRect(cx-12,by+4,24,16);
+    IX.fillStyle='#906820';IX.beginPath();IX.ellipse(cx,by+4,14,8,0,Math.PI,Math.PI*2);IX.fill();IX.stroke();
+    // sacks
+    for(var i=-1;i<=1;i++){IX.fillStyle='#806028';IX.beginPath();IX.ellipse(cx+i*7,by+18,3.5,5,0,0,Math.PI*2);IX.fill();IX.strokeStyle='rgba(0,0,0,.2)';IX.lineWidth=.5;IX.stroke();}
+    // coins
+    IX.fillStyle='#e0b020';IX.beginPath();IX.arc(cx,by+12,3,0,Math.PI*2);IX.fill();
+  }
+
+  // busy overlay: sparkles + progress bar
+  if(busy){
+    var now2=Date.now(),rem2=Math.max(0,(b.finishAt-now2)/1000),tot2=BD[id].t*(lvl+1),pct2=tot2>0?Math.max(0,Math.min(1,(tot2-rem2)/tot2)):0;
+    for(var s=0;s<5;s++){
+      var sa=animT*2.5+s*1.26,sr=16+s*3.5;
+      IX.save();IX.globalAlpha=0.6+0.35*Math.sin(animT*3+s);
+      IX.fillStyle=s%2===0?'#f0c040':'#e08020';
+      IX.beginPath();IX.arc(cx+Math.cos(sa)*sr,cy-h/2+Math.sin(sa)*sr*.5,2.5,0,Math.PI*2);IX.fill();
+      IX.restore();
+    }
+    IX.save();
+    IX.fillStyle='rgba(0,0,0,.7)';IX.fillRect(cx-22,cy-h-TH/2-22,44,7);
+    var grad=IX.createLinearGradient(cx-22,0,cx+22,0);
+    grad.addColorStop(0,'#c06010');grad.addColorStop(1,'#f0c040');
+    IX.fillStyle=grad;IX.fillRect(cx-22,cy-h-TH/2-22,44*pct2,7);
+    IX.strokeStyle='rgba(240,192,64,.4)';IX.lineWidth=.5;IX.strokeRect(cx-22,cy-h-TH/2-22,44,7);
+    IX.restore();
+  }
+
+  // level badge
+  if(lvl>0){
+    var badgeX=cx+TW/2-3,badgeY=cy-h-TH/2+3;
+    IX.fillStyle='rgba(0,0,0,.85)';IX.beginPath();IX.arc(badgeX,badgeY,9,0,Math.PI*2);IX.fill();
+    IX.strokeStyle='rgba(240,192,64,.7)';IX.lineWidth=1;IX.beginPath();IX.arc(badgeX,badgeY,9,0,Math.PI*2);IX.stroke();
+    IX.fillStyle='#f0c040';IX.font='bold 9px Cinzel,serif';IX.textAlign='center';IX.textBaseline='middle';
+    IX.fillText(lvl,badgeX,badgeY);
+  }
+  IX.restore();
+}
+
+// Draw decorative grass/trees between buildings
+function drawDecor(gx,gy){
+  var p=i2s(gx,gy),cx=p.x,cy=p.y;
+  var v=(gx*11+gy*7)%8;
+  IX.save();
+  if(v===0){
+    // tree
+    IX.fillStyle='#2a5010';IX.beginPath();IX.arc(cx-2,cy+TH/2-12,7,0,Math.PI*2);IX.fill();
+    IX.fillStyle='#3a6818';IX.beginPath();IX.arc(cx-2,cy+TH/2-14,5,0,Math.PI*2);IX.fill();
+    IX.fillStyle='#603010';IX.fillRect(cx-3,cy+TH/2-6,4,6);
+  } else if(v===1){
+    // small rocks
+    IX.fillStyle='#504840';IX.beginPath();IX.ellipse(cx+4,cy+TH/2-3,4,3,-.3,0,Math.PI*2);IX.fill();
+    IX.fillStyle='#606050';IX.beginPath();IX.ellipse(cx+4,cy+TH/2-3,2,1.5,0,0,Math.PI*2);IX.fill();
+  } else if(v===2){
+    // flowers
+    IX.fillStyle='#c8a020';for(var i=0;i<3;i++){IX.beginPath();IX.arc(cx-6+i*6,cy+TH/2-4,1.5,0,Math.PI*2);IX.fill();}
+    IX.strokeStyle='#386018';IX.lineWidth=.8;for(var i=0;i<3;i++){IX.beginPath();IX.moveTo(cx-6+i*6,cy+TH/2-4);IX.lineTo(cx-6+i*6,cy+TH/2);IX.stroke();}
+  }
+  IX.restore();
+}
+
+function drawIso(){
+  var W=IC.width,H=IC.height;
+  IX.clearRect(0,0,W,H);
+  // sky
+  var sky=IX.createLinearGradient(0,0,0,H);
+  sky.addColorStop(0,'#2a4060');sky.addColorStop(.35,'#4a6888');sky.addColorStop(.6,'#7aaa78');sky.addColorStop(1,'#608858');
+  IX.fillStyle=sky;IX.fillRect(0,0,W,H);
+  // sun
+  var sg=IX.createRadialGradient(W*.75,H*.15,0,W*.75,H*.15,120);
+  sg.addColorStop(0,'rgba(255,240,160,.35)');sg.addColorStop(1,'rgba(255,240,160,0)');
+  IX.fillStyle=sg;IX.fillRect(0,0,W,H);
+
+  for(var d=0;d<GN*2-1;d++){
+    for(var gx=0;gx<GN;gx++){
+      var gy=d-gx;
+      if(gy<0||gy>=GN)continue;
+      var bldId=null;
+      for(var id in ISO_SLOTS){if(ISO_SLOTS[id].gx===gx&&ISO_SLOTS[id].gy===gy){bldId=id;break;}}
+      var ci=(gx*7+gy*13)%GCOLS.length;
+      cube(gx,gy,4,GCOLS[ci]);
+      // paths between buildings
+      var p=i2s(gx,gy),cx2=p.x,cy2=p.y;
+      if(gx===4&&gy===4||gx===4&&gy===5||gx===4&&gy===3){
+        IX.fillStyle='rgba(140,110,60,.4)';IX.beginPath();IX.ellipse(cx2,cy2+TH/2-1,TW*.3,TH*.3,0,0,Math.PI*2);IX.fill();
+      }
+      if(!bldId) drawDecor(gx,gy);
+      if(bldId) drawBld(bldId,gx,gy);
+    }
+  }
+  animT+=0.04;
+}
+
+function resizeIso(){
+  var m=document.getElementById('iso-view');
+  IC.width=m.clientWidth;IC.height=m.clientHeight;
+  isoOX=IC.width/2;isoOY=IC.height/2-GN/2*TH/2-20;
+  drawIso();
+}
+
+var iview=document.getElementById('iso-view');
+iview.addEventListener('mousedown',function(e){isoDrag=true;idsx=e.clientX;idsy=e.clientY;iview.classList.add('grabbing');});
+iview.addEventListener('mousemove',function(e){
+  if(isoDrag){iddx=e.clientX-idsx;iddy=e.clientY-idsy;}
+  var b=isoHit(e.clientX,e.clientY);
+  if(b!==hovBld){hovBld=b;showBtip(b,e.clientX,e.clientY);}else if(b)moveBtip(e.clientX,e.clientY);
+});
+iview.addEventListener('mouseup',function(e){
+  if(Math.abs(iddx)<5&&Math.abs(iddy)<5){var b=isoHit(e.clientX,e.clientY);if(b)onIsoClick(b);}
+  isoOX+=iddx;isoOY+=iddy;iddx=0;iddy=0;isoDrag=false;iview.classList.remove('grabbing');
+});
+iview.addEventListener('mouseleave',function(){
+  if(isoDrag){isoOX+=iddx;isoOY+=iddy;iddx=0;iddy=0;isoDrag=false;iview.classList.remove('grabbing');}
+  hovBld=null;hideBtip();
+});
+iview.addEventListener('touchstart',function(e){if(e.touches.length===1){isoDrag=true;idsx=e.touches[0].clientX;idsy=e.touches[0].clientY;}},{passive:true});
+iview.addEventListener('touchmove',function(e){if(isoDrag&&e.touches.length===1){iddx=e.touches[0].clientX-idsx;iddy=e.touches[0].clientY-idsy;}},{passive:true});
+iview.addEventListener('touchend',function(e){
+  if(Math.abs(iddx)<8&&Math.abs(iddy)<8){var t=e.changedTouches[0];var b=isoHit(t.clientX,t.clientY);if(b)onIsoClick(b);}
+  isoOX+=iddx;isoOY+=iddy;iddx=0;iddy=0;isoDrag=false;
+},{passive:true});
+
+function isoHit(mx,my){
+  var best=null,bd=Infinity;
+  for(var id in ISO_SLOTS){var sl=ISO_SLOTS[id],p=i2s(sl.gx,sl.gy),d=Math.sqrt((mx-p.x)*(mx-p.x)+(my-p.y)*(my-p.y));if(d<50&&d<bd){bd=d;best=id;}}
+  return best;
+}
+function onIsoClick(id){
+  var b=G.bld[id];if(!b)return;
+  if(b.l>0){switchTab('village');}else{switchTab('build');}
+  if(b.busy){var r=Math.max(0,Math.ceil((b.finishAt-Date.now())/1000));notify('⏳ '+BD[id].n+' завершиться через '+r+'с');}
+  else notify('🏗 '+BD[id].n+(b.l>0?' — Рів.'+b.l:'— клікни БУДУВАТИ'));
+}
+var btipEl=document.getElementById('btip');
+function showBtip(id,mx,my){
+  if(!id){hideBtip();return;}
+  var b=G.bld[id];if(!b){hideBtip();return;}
+  btipEl.textContent=BD[id].ico+' '+BD[id].n+(b.l>0?' Рів.'+b.l:'')+(b.busy?' ⏳'+Math.max(0,Math.ceil((b.finishAt-Date.now())/1000))+'с':'');
+  btipEl.style.left=(mx+14)+'px';btipEl.style.top=(my-10)+'px';btipEl.classList.add('on');
+}
+function moveBtip(mx,my){btipEl.style.left=(mx+14)+'px';btipEl.style.top=(my-10)+'px';}
+function hideBtip(){btipEl.classList.remove('on');}
+
+// ── HEX MAP ───────────────────────────────────────────────
+var HC=document.getElementById('hex-canvas'),HX=HC.getContext('2d');
+var HS=28,COLS=48,ROWS=34,HMAP=[];
+var hvx=0,hvy=0,hdrag=false,hdsx=0,hdsy=0,hddx=0,hddy=0,hsel=null;
+var HTT=[{id:'plains',c:'#c8d898',s:'#98b868',n:'Рівнина',d:'Відкрита місцевість'},{id:'forest',c:'#70a850',s:'#487830',n:'Ліс',d:'Багато деревини'},{id:'mountain',c:'#b0a898',s:'#786858',n:'Гори',d:'Багато каменю'},{id:'water',c:'#6898c8',s:'#385898',n:'Ріка',d:'Водний шлях'},{id:'wasteland',c:'#c8b878',s:'#906848',n:'Пустка',d:'Небезпечні землі'}];
+var HTFREQ=[35,25,15,10,15],HTEMO={plains:'🌿',forest:'🌲',mountain:'▲',water:'〜',wasteland:'✦'};
+function sRnd(seed,i){var x=Math.sin(seed+i*127.1)*43758.5453;return x-Math.floor(x);}
+function buildMap(seed){seed=seed||12345;var pc=Math.floor(COLS/2),pr=Math.floor(ROWS/2);HMAP=[];for(var r=0;r<ROWS;r++){HMAP[r]=[];for(var q=0;q<COLS;q++){var i=r*COLS+q,dp=Math.max(Math.abs(q-pc),Math.abs(r-pr));var ti=0,cum=0,rv=sRnd(seed,i)*100;if(!(q===pc&&r===pr)){for(var j=0;j<HTT.length;j++){cum+=HTFREQ[j];if(rv<cum){ti=j;break;}}}HMAP[r][q]={q:q,r:r,type:HTT[ti],player:q===pc&&r===pr,enemy:sRnd(seed+1,i)<0.04&&!(q===pc&&r===pr)&&dp>3,fog:dp>8};}}}
+function h2p(q,r){return{x:HS*Math.sqrt(3)*(q+0.5*(r&1)),y:HS*1.5*r};}
+function dHex(cx,cy,sz,fc,sc,a){HX.save();HX.globalAlpha=a===undefined?1:a;HX.beginPath();for(var i=0;i<6;i++){var ang=Math.PI/3*i-Math.PI/6;HX.lineTo(cx+sz*Math.cos(ang),cy+sz*Math.sin(ang));}HX.closePath();HX.fillStyle=fc;HX.fill();HX.strokeStyle=sc;HX.lineWidth=1;HX.stroke();HX.restore();}
+function drawHMap(){var W=HC.width,H=HC.height;HX.clearRect(0,0,W,H);var g=HX.createLinearGradient(0,0,W,H);g.addColorStop(0,'#1a2a10');g.addColorStop(1,'#0e1a08');HX.fillStyle=g;HX.fillRect(0,0,W,H);var ox=hvx+hddx,oy=hvy+hddy;for(var r=0;r<ROWS;r++){for(var q=0;q<COLS;q++){var cell=HMAP[r][q],p=h2p(q,r),px=p.x+ox,py=p.y+oy;if(px<-HS*2||px>W+HS*2||py<-HS*2||py>H+HS*2)continue;if(cell.fog){dHex(px,py,HS-1,'#0a1006','#142010',.6);continue;}var sel=hsel&&hsel.q===q&&hsel.r===r;var fc=cell.type.c,sc=cell.type.s;if(cell.player){fc='#e8d060';sc='#c09010';}else if(cell.enemy){fc='#a03030';sc='#c04040';}else if(sel){sc='#f0c040';}dHex(px,py,HS-1,fc,sc);HX.save();HX.textAlign='center';HX.textBaseline='middle';if(cell.player){HX.font=Math.floor(HS*.75)+'px serif';HX.fillText('🏘',px,py);}else if(cell.enemy){HX.font=Math.floor(HS*.65)+'px serif';HX.fillText('⚔',px,py);}else{var em=HTEMO[cell.type.id];if(em&&em.length>1){HX.font=Math.floor(HS*.5)+'px serif';HX.fillText(em,px,py);}else{HX.fillStyle=cell.type.s;HX.font=Math.floor(HS*.35)+'px sans-serif';HX.fillText(em||'·',px,py);}}if(sel){HX.strokeStyle='#f0c040';HX.lineWidth=2;HX.beginPath();for(var i=0;i<6;i++){var ang=Math.PI/3*i-Math.PI/6;HX.lineTo(px+(HS-1)*Math.cos(ang),py+(HS-1)*Math.sin(ang));}HX.closePath();HX.stroke();}HX.restore();}}}
+function resizeHex(){var m=document.getElementById('hex-view');HC.width=m.clientWidth;HC.height=m.clientHeight;var pc=Math.floor(COLS/2),pr=Math.floor(ROWS/2),p=h2p(pc,pr);hvx=HC.width/2-p.x;hvy=HC.height/2-p.y;drawHMap();}
+var hview=document.getElementById('hex-view');
+hview.addEventListener('mousedown',function(e){hdrag=true;hdsx=e.clientX;hdsy=e.clientY-52;hview.classList.add('grabbing');});
+hview.addEventListener('mousemove',function(e){if(!hdrag)return;hddx=e.clientX-hdsx;hddy=(e.clientY-52)-hdsy;drawHMap();});
+hview.addEventListener('mouseup',function(e){if(Math.abs(hddx)<5&&Math.abs(hddy)<5){var c=hHit(e.clientX,e.clientY-52);if(c&&!c.fog){hsel=c;showHPop(c);drawHMap();}}hvx+=hddx;hvy+=hddy;hddx=0;hddy=0;hdrag=false;hview.classList.remove('grabbing');});
+hview.addEventListener('mouseleave',function(){if(hdrag){hvx+=hddx;hvy+=hddy;hddx=0;hddy=0;hdrag=false;hview.classList.remove('grabbing');}});
+hview.addEventListener('touchstart',function(e){if(e.touches.length===1){hdrag=true;hdsx=e.touches[0].clientX;hdsy=e.touches[0].clientY-52;}},{passive:true});
+hview.addEventListener('touchmove',function(e){if(hdrag&&e.touches.length===1){hddx=e.touches[0].clientX-hdsx;hddy=(e.touches[0].clientY-52)-hdsy;drawHMap();}},{passive:true});
+hview.addEventListener('touchend',function(e){if(Math.abs(hddx)<8&&Math.abs(hddy)<8){var t=e.changedTouches[0];var c=hHit(t.clientX,t.clientY-52);if(c&&!c.fog){hsel=c;showHPop(c);drawHMap();}}hvx+=hddx;hvy+=hddy;hddx=0;hddy=0;hdrag=false;},{passive:true});
+function hHit(mx,my){var ox=hvx+hddx,oy=hvy+hddy,best=null,bd=Infinity;for(var r=0;r<ROWS;r++)for(var q=0;q<COLS;q++){var p=h2p(q,r),d=Math.sqrt((mx-p.x-ox)*(mx-p.x-ox)+(my-p.y-oy)*(my-p.y-oy));if(d<bd&&d<HS){bd=d;best=HMAP[r][q];}}return best;}
+function showHPop(cell){var t=document.getElementById('hptit'),d=document.getElementById('hpdesc'),p=document.getElementById('hpop');if(cell.player){t.textContent='🏘 Твоє поселення';d.textContent='Тут твоє плем\'я.';}else if(cell.enemy){t.textContent='⚔ Вороже плем\'я';d.textContent='Відправ армію!';}else{t.textContent=cell.type.n;d.textContent=cell.type.d;}p.classList.add('on');clearTimeout(p._t);p._t=setTimeout(function(){p.classList.remove('on');},3000);}
+
+// ── RENDER LOOP ───────────────────────────────────────────
+function renderLoop(){if(curView==='village')drawIso();requestAnimationFrame(renderLoop);}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+loadGame();
+buildMap(G.seed);
+window.addEventListener('resize',function(){if(curView==='village')resizeIso();else resizeHex();});
+resizeIso();
+renderAll();
+
+setInterval(resTick,  1000);
+setInterval(conTick,  1000);
+setInterval(saveGame, 20000);
+requestAnimationFrame(renderLoop);
+
+setTimeout(function(){
+  notify(bl('townhall')>1?'✅ Прогрес завантажено!':'⚔ Ласкаво просимо! Клікай на будівлі або іди до 🏗 БУДУВАТИ');
+},400);
+</script>
+</body>
+</html>
